@@ -106,10 +106,10 @@ namespace BasicAuthentication.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult RoleAddToUser(string UserName, string RoleName)
+        public async Task<IActionResult> RoleAddToUser(string UserName, string RoleName)
         {
             ApplicationUser user = _db.Users.Where(u => u.UserName.Equals(UserName, StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault();
-            _userManager.AddToRoleAsync(user, RoleName);
+            await _userManager.AddToRoleAsync(user, RoleName);
             ViewBag.ResultMessage = "Role created successfully!";
 
             //prepopulate roles for the view dropdown

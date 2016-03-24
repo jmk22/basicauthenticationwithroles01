@@ -9,9 +9,11 @@ using Microsoft.AspNet.Http.Internal;
 using BasicAuthentication.Models;
 using Microsoft.Data.Entity;
 using Microsoft.AspNet.Mvc.Rendering;
+using Microsoft.AspNet.Authorization;
 
 namespace BasicAuthentication.Controllers
 {
+    [Authorize]
     public class RolesController : Controller
     {
         private readonly ApplicationDbContext _db;
@@ -32,13 +34,24 @@ namespace BasicAuthentication.Controllers
             return View(roles);
         }
 
+        // This method will prepopulate the users and roles dropdown menus
+        private void PrepopulateDropDownMenus()
+        {
+            var rolesList = _db.Roles.OrderBy(r => r.Name).ToList().Select(rr => new SelectListItem { Value = rr.Name.ToString(), Text = rr.Name }).ToList();
+            var usersList = _db.Users.OrderBy(u => u.UserName).ToList().Select(uu => new SelectListItem { Value = uu.UserName.ToString(), Text = uu.UserName }).ToList();
+            ViewBag.Roles = rolesList;
+            ViewBag.Users = usersList;
+        }
+
         // GET: /Roles/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
         // POST: /Roles/Create
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public IActionResult Create(string rolename)
         {
@@ -96,11 +109,7 @@ namespace BasicAuthentication.Controllers
 
         public IActionResult ManageUserRoles()
         {
-            //prepopulate roles for the view dropdown
-            var rolesList = _db.Roles.OrderBy(r => r.Name).ToList().Select(rr => new SelectListItem { Value = rr.Name.ToString(), Text = rr.Name }).ToList();
-            var usersList = _db.Users.OrderBy(u => u.UserName).ToList().Select(uu => new SelectListItem { Value = uu.UserName.ToString(), Text = uu.UserName }).ToList();
-            ViewBag.Roles = rolesList;
-            ViewBag.Users = usersList;
+            PrepopulateDropDownMenus();
             return View();
         }
 
@@ -112,13 +121,7 @@ namespace BasicAuthentication.Controllers
             await _userManager.AddToRoleAsync(user, RoleName);
             ViewBag.ResultMessage = "Role created successfully!";
 
-            //prepopulate roles for the view dropdown
-            var rolesList = _db.Roles.OrderBy(r => r.Name).ToList().Select(rr => new SelectListItem { Value = rr.Name.ToString(), Text = rr.Name }).ToList();
-            var usersList = _db.Users.OrderBy(u => u.UserName).ToList().Select(uu => new SelectListItem { Value = uu.UserName.ToString(), Text = uu.UserName }).ToList();
-
-            ViewBag.Roles = rolesList;
-            ViewBag.Users = usersList;
-
+            PrepopulateDropDownMenus();
             return View("ManageUserRoles");
         }
 
@@ -139,13 +142,7 @@ namespace BasicAuthentication.Controllers
                 {
                     Console.WriteLine(role);
                 }
-
-                //prepopulate roles for the view dropdown
-                var rolesList = _db.Roles.OrderBy(r => r.Name).ToList().Select(rr => new SelectListItem { Value = rr.Name.ToString(), Text = rr.Name }).ToList();
-                var usersList = _db.Users.OrderBy(u => u.UserName).ToList().Select(uu => new SelectListItem { Value = uu.UserName.ToString(), Text = uu.UserName }).ToList();
-
-                ViewBag.Roles = rolesList;
-                ViewBag.Users = usersList;
+                PrepopulateDropDownMenus();
             }
             return View("ManageUserRoles");
         }
@@ -166,13 +163,7 @@ namespace BasicAuthentication.Controllers
             {
                 ViewBag.ResultMessage = "This user doesn't belong to the selected role.";
             }
-            //prepopulate roles for the view dropdown
-            var rolesList = _db.Roles.OrderBy(r => r.Name).ToList().Select(rr => new SelectListItem { Value = rr.Name.ToString(), Text = rr.Name }).ToList();
-            var usersList = _db.Users.OrderBy(u => u.UserName).ToList().Select(uu => new SelectListItem { Value = uu.UserName.ToString(), Text = uu.UserName }).ToList();
-
-            ViewBag.Roles = rolesList;
-            ViewBag.Users = usersList;
-
+            PrepopulateDropDownMenus();
             return View("ManageUserRoles");
         }
     }

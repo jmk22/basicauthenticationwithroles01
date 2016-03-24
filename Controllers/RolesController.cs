@@ -62,7 +62,7 @@ namespace BasicAuthentication.Controllers
                     Name = rolename
                 });
                 _db.SaveChanges();
-                ViewBag.ResultMessage = "Role created successfully !";
+                ViewBag.ResultMessage = "Role created successfully!";
                 return RedirectToAction("Index");
             }
             catch (Exception ex)
@@ -129,11 +129,8 @@ namespace BasicAuthentication.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> GetRoles(string userName)
         {
-            Console.WriteLine("Hello!");
             if (!string.IsNullOrWhiteSpace(userName))
             {
-                Console.WriteLine("Hello from inside the if statement!");
-
                 ApplicationUser user = _db.Users.Where(u => u.UserName.Equals(userName, StringComparison.CurrentCultureIgnoreCase)).FirstOrDefault();
                 var account = new AccountController(_userManager, _signInManager, _db);
 
